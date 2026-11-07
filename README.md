@@ -1,8 +1,14 @@
 # dsh-token-bill · 对话费用
 
+[![npm](https://img.shields.io/npm/v/dsh-token-bill?label=npm&color=cb3837)](https://www.npmjs.com/package/dsh-token-bill)
+[![license](https://img.shields.io/npm/l/dsh-token-bill)](LICENSE)
+[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-%E2%89%A5%200.2.2--rc.1-4d6bfe)](https://github.com/deepseek-ai/deepseek-harness)
+
 [English](README.en.md)
 
-[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 插件：估算**每个对话花了多少钱**。
+[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 插件：估算**每个对话花了多少钱**。适合用 DeepSeek API 或账号额度的用户——想知道每个对话花了多少、哪些时段用更省。
+
+**安装**：DeepSeek Harness → **插件** → **添加插件**，输入 `dsh-token-bill`。（[详细说明](#安装)）
 
 - **输入框下方**：上下文圆环左边显示本会话的估算费用，点一下展开明细。
 - **侧边栏**：会话列表里，每个对话的时间旁边直接显示它的费用，不用点进去。
@@ -43,25 +49,30 @@
 
 需要 DeepSeek Harness **0.2.2-rc.1 或更新版本**。
 
-### 从 GitHub 安装（推荐）
+### 在插件页面安装（推荐）
 
-DeepSeek Harness 侧边栏 → **插件** → **添加插件**，填入：
+DeepSeek Harness 侧边栏 → **插件** → **添加插件**，输入：
 
 ```text
-github:leecisen/dsh-token-bill
+dsh-token-bill
 ```
 
-安装完成后点 **立即启用**。
+点 **安装**，装好后点 **立即启用**。插件发布在 [npm](https://www.npmjs.com/package/dsh-token-bill) 上，以后出了新版本，可以直接在插件页面一键更新。
 
-> 请填完整的 `github:leecisen/dsh-token-bill`。只填名字的话，DeepSeek Harness 会去 npm 上找同名的包，那可能是别人的插件。
+习惯用命令行的话，可以执行 `dsh plugin add dsh-token-bill`，需要时加上 `--profile <你的 profile 名>`。
 
-> 如果连不上 GitHub：在 [Releases](https://github.com/leecisen/dsh-token-bill/releases) 或仓库首页下载 ZIP，解压到一个固定位置，然后在「添加插件」里填这个文件夹的**绝对路径**（例如 `D:\dsh-plugins\dsh-token-bill`）。
+> 国内镜像（npmmirror）同步新版本可能要等一会儿。如果装不到最新版，把「添加插件」里的 **安装源** 切换成 **npm 官方源**。
 
-### 从旧版（`@local/token-cost`）升级
+### 其他安装方式
 
-新版是一个独立的包（包名 `dsh-token-bill`、行 id `dsh-token-bill`），和旧版互不冲突。安装并启用新版后，在 **插件** 页面关闭或卸载旧的 `@local/token-cost` 即可。旧版的 `inputPrice` / `cacheHitPrice` / `outputPrice` 配置仍然可用，会作为「未知模型的兜底价格」。
+- **从 GitHub 安装**：在「添加插件」里填 `github:leecisen/dsh-token-bill`，装的是仓库里最新的代码。这种方式装的插件没法在插件页面一键更新，升级时要先卸载再重新安装。
+- **离线安装**：在 [Releases](https://github.com/leecisen/dsh-token-bill/releases) 下载源码 ZIP，解压到一个固定的文件夹，然后在「添加插件」里填这个文件夹的**完整路径**（例如 `D:\dsh-plugins\dsh-token-bill`）。
 
-2.0.0 版当时叫 `dsh-token-cost`（地址 `github:leecisen/dsh-token-cost`）。如果你装过它，先在 **插件** 页面卸载，再按上面的方法安装新版。
+### 从旧版本升级
+
+- **v1（`@local/token-cost`）**：新版是一个独立的包（包名 `dsh-token-bill`，行 id `dsh-token-bill`），和旧版互不冲突。装好并启用新版后，在 **插件** 页面关闭或卸载旧的 `@local/token-cost` 即可。旧版的 `inputPrice` / `cacheHitPrice` / `outputPrice` 配置仍然有效，会用作"没有价格的模型的兜底价格"。
+- **2.0.0（当时叫 `dsh-token-cost`）**：先在 **插件** 页面卸载，再按上面的方法安装。注意：npm 上叫 `dsh-token-cost` 的包是**别人的另一个插件**，不是本插件的旧版本。
+- **用 `github:` 地址装过 2.0.1 的**：卸载后改成输入 `dsh-token-bill` 重新安装，以后就能一键更新了。
 
 ## 配置
 

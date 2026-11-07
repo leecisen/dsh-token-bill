@@ -1,8 +1,14 @@
 # dsh-token-bill · Conversation cost
 
+[![npm](https://img.shields.io/npm/v/dsh-token-bill?label=npm&color=cb3837)](https://www.npmjs.com/package/dsh-token-bill)
+[![license](https://img.shields.io/npm/l/dsh-token-bill)](LICENSE)
+[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-%E2%89%A5%200.2.2--rc.1-4d6bfe)](https://github.com/deepseek-ai/deepseek-harness)
+
 [中文](README.md)
 
-A [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) plugin that estimates **what every conversation costs**.
+A [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) plugin that estimates **what every conversation costs**. For anyone using the DeepSeek API or account quota who wants to know what each conversation costs and which hours are cheaper.
+
+**Install**: DeepSeek Harness → **Plugins** → **Add plugin**, enter `dsh-token-bill`. ([details](#install))
 
 - **Under the composer**: the session's estimated cost sits left of the context ring; click it for a breakdown.
 - **In the sidebar**: every conversation shows its cost next to its time, without opening it.
@@ -43,25 +49,30 @@ What the panel shows:
 
 Requires DeepSeek Harness **0.2.2-rc.1 or newer**.
 
-### From GitHub (recommended)
+### From the Plugins page (recommended)
 
 DeepSeek Harness sidebar → **Plugins** → **Add plugin**, then enter:
 
 ```text
-github:leecisen/dsh-token-bill
+dsh-token-bill
 ```
 
-When it finishes, click **Enable now**.
+Click **Install**, then **Enable now**. The plugin is published on [npm](https://www.npmjs.com/package/dsh-token-bill), so new versions can be updated in one click on the Plugins page.
 
-> Enter the whole `github:leecisen/dsh-token-bill`. A bare name makes DeepSeek Harness look for an npm package of that name, which may be someone else's plugin.
+From the command line: `dsh plugin add dsh-token-bill` (add `--profile <your profile>` if you need one).
 
-> Can't reach GitHub? Download the ZIP from [Releases](https://github.com/leecisen/dsh-token-bill/releases) or the repository page, extract it somewhere permanent, and enter that folder's **absolute path** in **Add plugin** (for example `D:\dsh-plugins\dsh-token-bill`).
+> The China mirror (npmmirror) can take a while to pick up a new version. If you don't get the latest one, switch **Registry** in **Add plugin** to the official npm registry.
 
-### Upgrading from v1 (`@local/token-cost`)
+### Other ways to install
 
-v2 is a separate package (package `dsh-token-bill`, row id `dsh-token-bill`) and does not clash with v1. Install and enable v2, then turn off or remove `@local/token-cost` on the **Plugins** page. v1's `inputPrice` / `cacheHitPrice` / `outputPrice` fields still work as the fallback price for unknown models.
+- **From GitHub**: enter `github:leecisen/dsh-token-bill` in **Add plugin** to install the repository's latest code. A plugin installed this way can't be updated in one click; uninstall and reinstall it to upgrade.
+- **Offline**: download the source ZIP from [Releases](https://github.com/leecisen/dsh-token-bill/releases), extract it somewhere permanent, and enter that folder's **absolute path** in **Add plugin** (for example `D:\dsh-plugins\dsh-token-bill`).
 
-Version 2.0.0 was named `dsh-token-cost` (`github:leecisen/dsh-token-cost`). If you installed it, uninstall it on the **Plugins** page first, then install as above.
+### Upgrading from an older version
+
+- **v1 (`@local/token-cost`)**: v2 is a separate package (package `dsh-token-bill`, row id `dsh-token-bill`) and does not clash with v1. Install and enable v2, then turn off or remove `@local/token-cost` on the **Plugins** page. v1's `inputPrice` / `cacheHitPrice` / `outputPrice` fields still work as the fallback price for models without one.
+- **2.0.0 (then named `dsh-token-cost`)**: uninstall it on the **Plugins** page first, then install as above. Note that the npm package named `dsh-token-cost` is **someone else's plugin**, not an older version of this one.
+- **2.0.1 installed through `github:`**: uninstall it and reinstall by entering `dsh-token-bill` to get one-click updates.
 
 ## Configuration
 

@@ -1,6 +1,6 @@
 {
   "name": "dsh-token-bill",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "DeepSeek Harness plugin: estimated cost of every conversation, with per-model and peak/off-peak DeepSeek pricing, a breakdown panel, and costs in the sidebar.",
   "license": "MIT",
   "author": "leecisen",
@@ -22,6 +22,9 @@
     "token",
     "cost",
     "pricing",
+    "billing",
+    "usage",
+    "cost-tracking",
     "费用"
   ],
   "main": "./index.js",
@@ -30,7 +33,8 @@
     "./client": "./client.js",
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
   },
   "files": [
     "index.js",

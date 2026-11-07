@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.2 — 2026-11-08
+
+Documentation only; the plugin code is unchanged.
+
+- Install by name: DeepSeek Harness → Plugins → Add plugin → `dsh-token-bill`, now that the package is on npm (and updates in one click). `github:leecisen/dsh-token-bill` and the offline ZIP stay as alternatives.
+- README: npm / license / DeepSeek Harness version badges, a one-line install at the top, and upgrade notes per older version.
+- More npm keywords for search.
+
 ## 2.0.1 — 2026-11-07
 
 ### Changed
