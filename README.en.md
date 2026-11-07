@@ -1,4 +1,4 @@
-# dsh-token-cost · Conversation cost
+# dsh-token-bill · Conversation cost
 
 [中文](README.md)
 
@@ -48,23 +48,27 @@ Requires DeepSeek Harness **0.2.2-rc.1 or newer**.
 DeepSeek Harness sidebar → **Plugins** → **Add plugin**, then enter:
 
 ```text
-github:leecisen/dsh-token-cost
+github:leecisen/dsh-token-bill
 ```
 
 When it finishes, click **Enable now**.
 
-> Can't reach GitHub? Download the ZIP from [Releases](https://github.com/leecisen/dsh-token-cost/releases) or the repository page, extract it somewhere permanent, and enter that folder's **absolute path** in **Add plugin** (for example `D:\dsh-plugins\dsh-token-cost`).
+> Enter the whole `github:leecisen/dsh-token-bill`. A bare name makes DeepSeek Harness look for an npm package of that name, which may be someone else's plugin.
+
+> Can't reach GitHub? Download the ZIP from [Releases](https://github.com/leecisen/dsh-token-bill/releases) or the repository page, extract it somewhere permanent, and enter that folder's **absolute path** in **Add plugin** (for example `D:\dsh-plugins\dsh-token-bill`).
 
 ### Upgrading from v1 (`@local/token-cost`)
 
-v2 is a separate package (package `dsh-token-cost`, row id `dsh-token-cost`) and does not clash with v1. Install and enable v2, then turn off or remove `@local/token-cost` on the **Plugins** page. v1's `inputPrice` / `cacheHitPrice` / `outputPrice` fields still work as the fallback price for unknown models.
+v2 is a separate package (package `dsh-token-bill`, row id `dsh-token-bill`) and does not clash with v1. Install and enable v2, then turn off or remove `@local/token-cost` on the **Plugins** page. v1's `inputPrice` / `cacheHitPrice` / `outputPrice` fields still work as the fallback price for unknown models.
+
+Version 2.0.0 was named `dsh-token-cost` (`github:leecisen/dsh-token-cost`). If you installed it, uninstall it on the **Plugins** page first, then install as above.
 
 ## Configuration
 
 It works without any configuration: CNY, peak / off-peak pricing, costs in the sidebar. To change that, add an entry to your profile's `cordis.patch.yml` (on Windows usually `%USERPROFILE%\.dsh\profiles\desktop\cordis.patch.yml`):
 
 ```yaml
-- id: dsh-token-cost
+- id: dsh-token-bill
   config:
     currency: CNY            # CNY or USD use the built-in DeepSeek prices; other codes use only your `models`
     timeOfDayPricing: true   # DeepSeek peak / off-peak tiers; false = everything at peak (an upper bound)
@@ -119,7 +123,7 @@ From the [official DeepSeek price page](https://api-docs.deepseek.com/quick_star
 
 ## How it works
 
-- The **Host half** registers the session projection `dshTokenCost`, which replays every billed model call in the session log: `assistant/message`, `assistant/attempt` (a failed attempt that was retried is billed too), and `compaction/summary`. Tokens are bucketed per provider + model and per peak / off-peak tier: uncached input, cached input, cache writes, output (and the thinking tokens within it).
+- The **Host half** registers the session projection `dshTokenBill`, which replays every billed model call in the session log: `assistant/message`, `assistant/attempt` (a failed attempt that was retried is billed too), and `compaction/summary`. Tokens are bucketed per provider + model and per peak / off-peak tier: uncached input, cached input, cache writes, output (and the thinking tokens within it).
 - Within one attempt the final message's usage replaces the streaming sample; after `llm/retry-started` the retry is billed separately — the same rule the built-in token meter follows.
 - The tier comes from each event's timestamp in Beijing time, so the fold is deterministic and replay-stable.
 - Forked sessions: events inherited from the parent (below `inheritedEventCount`) are not billed again.
@@ -136,8 +140,8 @@ From the [official DeepSeek price page](https://api-docs.deepseek.com/quick_star
 ## Development
 
 ```bash
-git clone https://github.com/leecisen/dsh-token-cost.git
-cd dsh-token-cost
+git clone https://github.com/leecisen/dsh-token-bill.git
+cd dsh-token-bill
 node --test "test/*.test.js"
 ```
 

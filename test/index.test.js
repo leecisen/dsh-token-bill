@@ -7,7 +7,7 @@ import { PROJECTION_KEY, STATE_VERSION } from '../lib/fold.js'
 
 describe('index.js', () => {
   it('declares its name and the sessionProjections dependency', () => {
-    assert.equal(plugin.name, 'dsh-token-cost')
+    assert.equal(plugin.name, 'dsh-token-bill')
     assert.deepEqual(plugin.inject, ['sessionProjections'])
   })
 
@@ -40,7 +40,7 @@ describe('index.js', () => {
     const client = readFileSync(new URL('../client.js', import.meta.url), 'utf8')
     assert.equal(pkg.name, plugin.name)
     assert.match(patch, new RegExp(`name: ${pkg.name}\\b`))
-    assert.match(patch, /id: dsh-token-cost\b/)
+    assert.match(patch, /id: dsh-token-bill\b/)
     assert.match(client, new RegExp(`id: '${pkg.name}'`))
     assert.equal(pkg.dsh.bundle.patch, './cordis.patch.yml')
     for (const file of ['index.js', 'client.js', 'cordis.patch.yml', 'README.md', 'README.en.md', 'icon.svg', 'LICENSE']) {

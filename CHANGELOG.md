@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1 — 2026-11-07
+
+### Changed
+
+- **Renamed to `dsh-token-bill`** (repository `leecisen/dsh-token-bill`, row id `dsh-token-bill`, projection key `dshTokenBill`). The npm name `dsh-token-cost` belongs to a different author's plugin, so installing by that bare name never reached this one. Install with `github:leecisen/dsh-token-bill`.
+- If you installed 2.0.0 (then named `dsh-token-cost`), uninstall it on the Plugins page before installing 2.0.1.
+- Sharper 2x README screenshots in Chinese and English; panel notes keep "9–12" on one line and drop the stray space after Chinese full stops.
+
 ## 2.0.0 — 2026-11-07
 
 A rewrite of the v1 `@local/token-cost` plugin, published as `dsh-token-cost`.

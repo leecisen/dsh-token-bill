@@ -1,4 +1,4 @@
-# dsh-token-cost · 对话费用
+# dsh-token-bill · 对话费用
 
 [English](README.en.md)
 
@@ -48,23 +48,27 @@
 DeepSeek Harness 侧边栏 → **插件** → **添加插件**，填入：
 
 ```text
-github:leecisen/dsh-token-cost
+github:leecisen/dsh-token-bill
 ```
 
 安装完成后点 **立即启用**。
 
-> 如果连不上 GitHub：在 [Releases](https://github.com/leecisen/dsh-token-cost/releases) 或仓库首页下载 ZIP，解压到一个固定位置，然后在「添加插件」里填这个文件夹的**绝对路径**（例如 `D:\dsh-plugins\dsh-token-cost`）。
+> 请填完整的 `github:leecisen/dsh-token-bill`。只填名字的话，DeepSeek Harness 会去 npm 上找同名的包，那可能是别人的插件。
+
+> 如果连不上 GitHub：在 [Releases](https://github.com/leecisen/dsh-token-bill/releases) 或仓库首页下载 ZIP，解压到一个固定位置，然后在「添加插件」里填这个文件夹的**绝对路径**（例如 `D:\dsh-plugins\dsh-token-bill`）。
 
 ### 从旧版（`@local/token-cost`）升级
 
-新版是一个独立的包（包名 `dsh-token-cost`、行 id `dsh-token-cost`），和旧版互不冲突。安装并启用新版后，在 **插件** 页面关闭或卸载旧的 `@local/token-cost` 即可。旧版的 `inputPrice` / `cacheHitPrice` / `outputPrice` 配置仍然可用，会作为「未知模型的兜底价格」。
+新版是一个独立的包（包名 `dsh-token-bill`、行 id `dsh-token-bill`），和旧版互不冲突。安装并启用新版后，在 **插件** 页面关闭或卸载旧的 `@local/token-cost` 即可。旧版的 `inputPrice` / `cacheHitPrice` / `outputPrice` 配置仍然可用，会作为「未知模型的兜底价格」。
+
+2.0.0 版当时叫 `dsh-token-cost`（地址 `github:leecisen/dsh-token-cost`）。如果你装过它，先在 **插件** 页面卸载，再按上面的方法安装新版。
 
 ## 配置
 
 不配置也能用：默认人民币、区分时段、在侧边栏显示费用。要修改时，在你的 profile 的 `cordis.patch.yml`（Windows 一般在 `%USERPROFILE%\.dsh\profiles\desktop\cordis.patch.yml`）里加一段：
 
 ```yaml
-- id: dsh-token-cost
+- id: dsh-token-bill
   config:
     currency: CNY            # CNY 或 USD 使用内置 DeepSeek 价格；其他币种只用你在 models 里填的价格
     timeOfDayPricing: true   # 区分 DeepSeek 高峰/空闲时段；false = 全部按高峰价（保守上限）
@@ -119,7 +123,7 @@ github:leecisen/dsh-token-cost
 
 ## 计算方式
 
-- **Host 端**注册一个会话投影 `dshTokenCost`，重放会话日志里每一次计费的模型调用：`assistant/message`、`assistant/attempt`（失败后重试的那次也计费）和 `compaction/summary`。按「provider + 模型」和「高峰 / 空闲」分桶累计 token：未命中缓存的输入、命中缓存的输入、缓存写入、输出（以及其中的思考 tokens）。
+- **Host 端**注册一个会话投影 `dshTokenBill`，重放会话日志里每一次计费的模型调用：`assistant/message`、`assistant/attempt`（失败后重试的那次也计费）和 `compaction/summary`。按「provider + 模型」和「高峰 / 空闲」分桶累计 token：未命中缓存的输入、命中缓存的输入、缓存写入、输出（以及其中的思考 tokens）。
 - 同一次尝试里，流式过程中的用量会被最终消息的用量替换；遇到 `llm/retry-started` 后，重试那次单独计费——与内置 token 计量的规则一致。
 - 高峰 / 空闲按**事件发生时间**（北京时间）判断，结果可重放、确定。
 - 分叉会话：从父会话继承的那部分事件（`inheritedEventCount` 之前）不计费。
@@ -136,8 +140,8 @@ github:leecisen/dsh-token-cost
 ## 开发
 
 ```bash
-git clone https://github.com/leecisen/dsh-token-cost.git
-cd dsh-token-cost
+git clone https://github.com/leecisen/dsh-token-bill.git
+cd dsh-token-bill
 node --test "test/*.test.js"
 ```
 

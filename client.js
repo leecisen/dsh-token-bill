@@ -1,5 +1,5 @@
 /**
- * Browser half of dsh-token-cost.
+ * Browser half of dsh-token-bill.
  *
  *  - `conversation.composer.dock`: a cost badge beside the built-in context
  *    ring. Clicking it opens a breakdown panel: cost per token bucket, per
@@ -12,7 +12,7 @@
  * when ui-primitives is missing or older, small local stand-ins take over.
  */
 window.__ModuleLoader__.load({
-  id: 'dsh-token-cost',
+  id: 'dsh-token-bill',
   factory(require) {
     const React = require('react')
     const ReactDOM = require('react-dom')
@@ -26,10 +26,10 @@ window.__ModuleLoader__.load({
     }
 
     /** Projection key written by the Host half (`lib/fold.js`). */
-    const KEY = 'dshTokenCost'
+    const KEY = 'dshTokenBill'
     /** Locale namespace owned by this plugin. */
-    const NS = 'dshTokenCost'
-    const STYLE_KEY = 'dsh-token-cost/style'
+    const NS = 'dshTokenBill'
+    const STYLE_KEY = 'dsh-token-bill/style'
 
     const zh = {
       'badge.tooltip': '本会话估算费用 {cost}，点击查看明细',
@@ -273,10 +273,10 @@ window.__ModuleLoader__.load({
     // ---- composer badge and panel --------------------------------------------
 
     const BUCKETS = [
-      { key: 'input', tone: 'dshtc-tone-input' },
-      { key: 'cacheRead', tone: 'dshtc-tone-cache' },
-      { key: 'cacheWrite', tone: 'dshtc-tone-write' },
-      { key: 'output', tone: 'dshtc-tone-output' },
+      { key: 'input', tone: 'dshtb-tone-input' },
+      { key: 'cacheRead', tone: 'dshtb-tone-cache' },
+      { key: 'cacheWrite', tone: 'dshtb-tone-write' },
+      { key: 'output', tone: 'dshtb-tone-output' },
     ]
 
     function CostPanel({ view, t, panelRef, position, subagents }) {
@@ -316,48 +316,48 @@ window.__ModuleLoader__.load({
 
       return h('div', {
         ref: panelRef,
-        className: 'dshtc-panel',
+        className: 'dshtb-panel',
         style: position || { visibility: 'hidden', left: 0, top: 0 },
         role: 'dialog',
         'aria-label': t('panel.title'),
       },
-      h('div', { className: 'dshtc-head' },
-        h('span', { className: 'dshtc-title' }, t('panel.title')),
-        h('span', { className: 'dshtc-total' }, view.cost <= 0 && !view.complete
+      h('div', { className: 'dshtb-head' },
+        h('span', { className: 'dshtb-title' }, t('panel.title')),
+        h('span', { className: 'dshtb-total' }, view.cost <= 0 && !view.complete
           ? t('models.unpriced')
           : money(view.cost) + (view.complete ? '' : '+'))),
       segments.length > 0
-        ? h('div', { className: 'dshtc-bar', 'aria-hidden': true },
+        ? h('div', { className: 'dshtb-bar', 'aria-hidden': true },
           segments.map(segment => h('div', {
             key: segment.key,
-            className: `dshtc-seg ${segment.tone}`,
+            className: `dshtb-seg ${segment.tone}`,
             style: { width: `${segment.width}%` },
           })))
-        : h('div', { className: 'dshtc-gap' }),
-      h('dl', { className: 'dshtc-grid' },
+        : h('div', { className: 'dshtb-gap' }),
+      h('dl', { className: 'dshtb-grid' },
         buckets.map(bucket => h(React.Fragment, { key: bucket.key },
-          h('dt', null, h('span', { className: `dshtc-swatch ${bucket.tone}`, 'aria-hidden': true }), t(`bucket.${bucket.key}`)),
+          h('dt', null, h('span', { className: `dshtb-swatch ${bucket.tone}`, 'aria-hidden': true }), t(`bucket.${bucket.key}`)),
           h('dd', null, formatTokens(view.tokens[bucket.key])),
-          h('dd', { className: 'dshtc-money' }, view.cost > 0 || view.complete ? money(view.costs[bucket.key]) : '—')))),
-      h('div', { className: 'dshtc-sep' }),
-      h('dl', { className: 'dshtc-grid dshtc-stats' },
+          h('dd', { className: 'dshtb-money' }, view.cost > 0 || view.complete ? money(view.costs[bucket.key]) : '—')))),
+      h('div', { className: 'dshtb-sep' }),
+      h('dl', { className: 'dshtb-grid dshtb-stats' },
         stats.map(([key, label, value]) => h(React.Fragment, { key },
           h('dt', null, label),
-          h('dd', { className: key === 'grand' ? 'dshtc-money dshtc-strong' : 'dshtc-money' }, value)))),
+          h('dd', { className: key === 'grand' ? 'dshtb-money dshtb-strong' : 'dshtb-money' }, value)))),
       showModels
         ? h(React.Fragment, null,
-          h('div', { className: 'dshtc-sep' }),
-          h('div', { className: 'dshtc-section' }, t('models.title')),
-          h('dl', { className: 'dshtc-grid' },
+          h('div', { className: 'dshtb-sep' }),
+          h('div', { className: 'dshtb-section' }, t('models.title')),
+          h('dl', { className: 'dshtb-grid' },
             view.models.map(row => h(React.Fragment, { key: `${row.provider}\n${row.model}` },
               h('dt', { title: row.provider ? `${row.provider} / ${row.model}` : row.model },
                 row.model || '?',
-                repeated.has(row.model) && row.provider ? h('span', { className: 'dshtc-provider' }, row.provider) : null),
+                repeated.has(row.model) && row.provider ? h('span', { className: 'dshtb-provider' }, row.provider) : null),
               h('dd', null, formatTokens(row.tokens)),
-              h('dd', { className: row.cost === null ? 'dshtc-muted' : 'dshtc-money' },
+              h('dd', { className: row.cost === null ? 'dshtb-muted' : 'dshtb-money' },
                 row.cost === null ? t('models.unpriced') : money(row.cost))))))
         : null,
-      h('p', { className: 'dshtc-note' }, notes.join(t('note.join'))))
+      h('p', { className: 'dshtb-note' }, notes.join(t('note.join'))))
     }
 
     function useSubagents(props) {
@@ -410,11 +410,11 @@ window.__ModuleLoader__.load({
       const label = view.cost <= 0 && !view.complete
         ? t('badge.unpriced')
         : t('badge.tooltip', { cost: formatMoney(view.cost, view.symbol, 'panel') + (view.complete ? '' : '+') })
-      return h('span', { ref: rootRef, className: 'dshtc-root' },
+      return h('span', { ref: rootRef, className: 'dshtb-root' },
         h(Tooltip, { label, side: 'top', delayMs: 200, disabled: open, portal: true },
           h('button', {
             type: 'button',
-            className: 'dshtc-trigger',
+            className: 'dshtb-trigger',
             'aria-label': label,
             'aria-haspopup': 'dialog',
             'aria-expanded': open,
@@ -435,7 +435,7 @@ window.__ModuleLoader__.load({
       const t = translator(props.t)
       const more = view.complete ? '' : '+'
       return h('span', {
-        className: 'dshtc-row',
+        className: 'dshtb-row',
         title: t('row.title', { cost: formatMoney(view.cost, view.symbol, 'panel') + more }),
       }, formatMoney(view.cost, view.symbol, 'row') + more)
     }
@@ -445,34 +445,34 @@ window.__ModuleLoader__.load({
     // Theme tokens only, so light, dark, and skins follow the host. The panel
     // mirrors the built-in context meter's panel.
     const CSS = [
-      '.dshtc-root{flex:none;display:inline-flex}',
-      '.dshtc-trigger{border-radius:var(--dsw-radius-sm);color:var(--dsw-alias-label-tertiary);font-family:inherit;font-size:var(--dsh-content-font-size-secondary,13px);font-variant-numeric:tabular-nums;line-height:calc(20px + var(--dsh-content-font-delta-secondary,0px));white-space:nowrap;cursor:pointer;background:0 0;border:none;flex:none;align-items:center;gap:6px;padding:1px 8px;display:inline-flex}',
-      '.dshtc-trigger[aria-expanded=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary)}',
-      '@media (hover:hover){.dshtc-trigger:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary)}}',
-      '.dshtc-panel{z-index:1100;box-sizing:border-box;border-radius:var(--dsw-radius-lg);background:var(--dsw-specific-menu);width:min(300px,100vw - 24px);backdrop-filter:var(--dsw-menu-backdrop-filter);--dsw-elevation-stroke-color:var(--dsw-alias-border-l1);box-shadow:var(--dsw-elevation-prominent);color:var(--dsw-alias-label-secondary);cursor:default;max-width:var(--dsh-anchored-max-width,none);max-height:var(--dsh-anchored-max-height,none);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2);--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2);border:0;padding:12px;font-size:12px;line-height:20px;position:fixed;overflow:hidden auto}',
-      '.dshtc-head{display:flex;align-items:baseline;gap:6px}',
-      '.dshtc-title{color:var(--dsw-alias-label-tertiary)}',
-      '.dshtc-total{margin-left:auto;color:var(--dsw-alias-label-primary);font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}',
-      '.dshtc-bar{background:var(--dsw-alias-interactive-bg-hover);border-radius:999px;gap:1px;height:4px;margin:10px 0;display:flex;overflow:hidden}',
-      '.dshtc-gap{height:8px}',
-      '.dshtc-seg{background:var(--dshtc-tint);border-radius:1px;flex:none;min-width:2px;height:100%}',
-      '.dshtc-swatch{background:var(--dshtc-tint);vertical-align:baseline;border-radius:2px;width:8px;height:8px;margin-right:6px;display:inline-block}',
-      '.dshtc-tone-input{--dshtc-tint:var(--dsw-static-blue-450,#4d6bfe)}',
-      '.dshtc-tone-cache{--dshtc-tint:var(--dsw-static-neutral-bluish-400,#8a94a6)}',
-      '.dshtc-tone-write{--dshtc-tint:#f59e0b}',
-      '.dshtc-tone-output{--dshtc-tint:#a78bfa}',
-      '.dshtc-grid{display:grid;grid-template-columns:minmax(0,1fr) auto auto;column-gap:12px;row-gap:2px;align-items:baseline;margin:0}',
-      '.dshtc-grid dt{color:var(--dsw-alias-label-secondary);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
-      '.dshtc-grid dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;color:var(--dsw-alias-label-tertiary);white-space:nowrap}',
-      '.dshtc-grid dd.dshtc-money{color:var(--dsw-alias-label-primary)}',
-      '.dshtc-grid dd.dshtc-muted{color:var(--dsw-alias-label-tertiary)}',
-      '.dshtc-stats{grid-template-columns:minmax(0,1fr) auto}',
-      '.dshtc-strong{font-weight:500}',
-      '.dshtc-provider{margin-left:6px;color:var(--dsw-alias-label-tertiary)}',
-      '.dshtc-sep{border-top:.5px solid var(--dsw-alias-border-l2);margin:8px 0}',
-      '.dshtc-section{color:var(--dsw-alias-label-tertiary);margin-bottom:2px}',
-      '.dshtc-note{margin:8px 0 0;color:var(--dsw-alias-label-tertiary);font-size:11px;line-height:16px}',
-      '.dshtc-row{flex:none;color:inherit;font-size:10px;line-height:16px;font-variant-numeric:tabular-nums;white-space:nowrap}',
+      '.dshtb-root{flex:none;display:inline-flex}',
+      '.dshtb-trigger{border-radius:var(--dsw-radius-sm);color:var(--dsw-alias-label-tertiary);font-family:inherit;font-size:var(--dsh-content-font-size-secondary,13px);font-variant-numeric:tabular-nums;line-height:calc(20px + var(--dsh-content-font-delta-secondary,0px));white-space:nowrap;cursor:pointer;background:0 0;border:none;flex:none;align-items:center;gap:6px;padding:1px 8px;display:inline-flex}',
+      '.dshtb-trigger[aria-expanded=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary)}',
+      '@media (hover:hover){.dshtb-trigger:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary)}}',
+      '.dshtb-panel{z-index:1100;box-sizing:border-box;border-radius:var(--dsw-radius-lg);background:var(--dsw-specific-menu);width:min(300px,100vw - 24px);backdrop-filter:var(--dsw-menu-backdrop-filter);--dsw-elevation-stroke-color:var(--dsw-alias-border-l1);box-shadow:var(--dsw-elevation-prominent);color:var(--dsw-alias-label-secondary);cursor:default;max-width:var(--dsh-anchored-max-width,none);max-height:var(--dsh-anchored-max-height,none);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2);--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2);border:0;padding:12px;font-size:12px;line-height:20px;position:fixed;overflow:hidden auto}',
+      '.dshtb-head{display:flex;align-items:baseline;gap:6px}',
+      '.dshtb-title{color:var(--dsw-alias-label-tertiary)}',
+      '.dshtb-total{margin-left:auto;color:var(--dsw-alias-label-primary);font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}',
+      '.dshtb-bar{background:var(--dsw-alias-interactive-bg-hover);border-radius:999px;gap:1px;height:4px;margin:10px 0;display:flex;overflow:hidden}',
+      '.dshtb-gap{height:8px}',
+      '.dshtb-seg{background:var(--dshtb-tint);border-radius:1px;flex:none;min-width:2px;height:100%}',
+      '.dshtb-swatch{background:var(--dshtb-tint);vertical-align:baseline;border-radius:2px;width:8px;height:8px;margin-right:6px;display:inline-block}',
+      '.dshtb-tone-input{--dshtb-tint:var(--dsw-static-blue-450,#4d6bfe)}',
+      '.dshtb-tone-cache{--dshtb-tint:var(--dsw-static-neutral-bluish-400,#8a94a6)}',
+      '.dshtb-tone-write{--dshtb-tint:#f59e0b}',
+      '.dshtb-tone-output{--dshtb-tint:#a78bfa}',
+      '.dshtb-grid{display:grid;grid-template-columns:minmax(0,1fr) auto auto;column-gap:12px;row-gap:2px;align-items:baseline;margin:0}',
+      '.dshtb-grid dt{color:var(--dsw-alias-label-secondary);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+      '.dshtb-grid dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;color:var(--dsw-alias-label-tertiary);white-space:nowrap}',
+      '.dshtb-grid dd.dshtb-money{color:var(--dsw-alias-label-primary)}',
+      '.dshtb-grid dd.dshtb-muted{color:var(--dsw-alias-label-tertiary)}',
+      '.dshtb-stats{grid-template-columns:minmax(0,1fr) auto}',
+      '.dshtb-strong{font-weight:500}',
+      '.dshtb-provider{margin-left:6px;color:var(--dsw-alias-label-tertiary)}',
+      '.dshtb-sep{border-top:.5px solid var(--dsw-alias-border-l2);margin:8px 0}',
+      '.dshtb-section{color:var(--dsw-alias-label-tertiary);margin-bottom:2px}',
+      '.dshtb-note{margin:8px 0 0;color:var(--dsw-alias-label-tertiary);font-size:11px;line-height:16px}',
+      '.dshtb-row{flex:none;color:inherit;font-size:10px;line-height:16px;font-variant-numeric:tabular-nums;white-space:nowrap}',
     ].join('')
 
     /** Install (or refresh) this plugin's one stylesheet. */
@@ -481,7 +481,7 @@ window.__ModuleLoader__.load({
       let tag = document.querySelector(`style[data-plugin-css=${JSON.stringify(STYLE_KEY)}]`)
       if (tag === null) {
         tag = document.createElement('style')
-        tag.dataset.plugin = 'dsh-token-cost'
+        tag.dataset.plugin = 'dsh-token-bill'
         tag.dataset.pluginCss = STYLE_KEY
         document.head.appendChild(tag)
       }
@@ -490,7 +490,7 @@ window.__ModuleLoader__.load({
     }
 
     return {
-      name: 'dsh-token-cost',
+      name: 'dsh-token-bill',
       inject: ['slots', 'locale'],
       /**
        * Register the stylesheet, the dictionaries, and both slot entries. Each
@@ -503,17 +503,17 @@ window.__ModuleLoader__.load({
           return () => {
             if (tag !== null) tag.remove()
           }
-        }, 'dsh-token-cost: stylesheet')
-        ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'dsh-token-cost: dictionaries')
+        }, 'dsh-token-bill: stylesheet')
+        ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'dsh-token-bill: dictionaries')
         ctx.slots.inject('conversation.composer.dock', () => ctx.slots.register({
           name: 'conversation.composer.dock',
-          id: 'dsh-token-cost',
+          id: 'dsh-token-bill',
           order: -1,
           locale: NS,
         }, CostBadge))
         ctx.slots.inject('sidebar.session.row.trailing', () => ctx.slots.register({
           name: 'sidebar.session.row.trailing',
-          id: 'dsh-token-cost',
+          id: 'dsh-token-bill',
           locale: NS,
         }, SessionRowCost))
       },

@@ -78,7 +78,7 @@ function loadClient({ open = false } = {}) {
   }
   plugin.apply(ctx)
   const t = (lang) => (key, params) => {
-    const template = dictionaries.dshTokenCost[lang][key] ?? key
+    const template = dictionaries.dshTokenBill[lang][key] ?? key
     return params ? template.replace(/\{(\w+)\}/g, (m, n) => (n in params ? String(params[n]) : m)) : template
   }
   return { plugin, registrations, dictionaries, effects, t, stateQueue }
@@ -110,23 +110,23 @@ const SESSION_VIEW = viewFrom([
 ])
 
 describe('client.js', () => {
-  it('registers as dsh-token-cost with both slot entries, styles, and dictionaries', () => {
+  it('registers as dsh-token-bill with both slot entries, styles, and dictionaries', () => {
     const { plugin, registrations, dictionaries, effects } = loadClient()
-    assert.equal(plugin.id, 'dsh-token-cost')
+    assert.equal(plugin.id, 'dsh-token-bill')
     assert.deepEqual([...plugin.inject], ['slots', 'locale'])
     assert.deepEqual(registrations.map(r => [r.options.name, r.options.id, r.options.locale]), [
-      ['conversation.composer.dock', 'dsh-token-cost', 'dshTokenCost'],
-      ['sidebar.session.row.trailing', 'dsh-token-cost', 'dshTokenCost'],
+      ['conversation.composer.dock', 'dsh-token-bill', 'dshTokenBill'],
+      ['sidebar.session.row.trailing', 'dsh-token-bill', 'dshTokenBill'],
     ])
-    assert.deepEqual(Object.keys(dictionaries.dshTokenCost).sort(), ['en', 'zh'])
-    assert.deepEqual(Object.keys(dictionaries.dshTokenCost.zh).sort(), Object.keys(dictionaries.dshTokenCost.en).sort())
+    assert.deepEqual(Object.keys(dictionaries.dshTokenBill).sort(), ['en', 'zh'])
+    assert.deepEqual(Object.keys(dictionaries.dshTokenBill.zh).sort(), Object.keys(dictionaries.dshTokenBill.en).sort())
     assert.equal(effects.length, 2)
   })
 
   it('renders the badge with the session cost and nothing before the first call', () => {
     const { registrations, t } = loadClient()
     const Badge = registrations[0].component
-    const html = render({ type: Badge, props: { useProjection: key => (key === 'dshTokenCost' ? SESSION_VIEW : undefined), t: t('zh') } })
+    const html = render({ type: Badge, props: { useProjection: key => (key === 'dshTokenBill' ? SESSION_VIEW : undefined), t: t('zh') } })
     // Peak: 0.12M*9 + 0.88M*0.3 + 9k*27 = 1.08 + 0.264 + 0.243; night: 0.04M*4.5 + 0.96M*0.15 + 5k*13.5 = 0.18 + 0.144 + 0.0675
     assert.equal(SESSION_VIEW.cost, 1.9785)
     // Without ui-primitives the Tooltip stand-in puts the label in `title`.
@@ -139,7 +139,7 @@ describe('client.js', () => {
   it('renders the open panel with buckets, stats, models, and notes', () => {
     const { registrations, t } = loadClient({ open: true })
     const Badge = registrations[0].component
-    const html = render({ type: Badge, props: { useProjection: key => (key === 'dshTokenCost' ? SESSION_VIEW : undefined), t: t('en') } })
+    const html = render({ type: Badge, props: { useProjection: key => (key === 'dshTokenBill' ? SESSION_VIEW : undefined), t: t('en') } })
     for (const text of [
       'Session cost (estimate)',
       '¥1.98+',
@@ -164,14 +164,14 @@ describe('client.js', () => {
     const Badge = registrations[0].component
     const child = viewFrom([message(0, 0, 'deepseek-flash', 'deepseek-account', { inputTokens: 1_000_000, outputTokens: 0 })])
     const list = {
-      byId: { child1: { id: 'child1', projectionValues: { dshTokenCost: child } } },
+      byId: { child1: { id: 'child1', projectionValues: { dshTokenBill: child } } },
       projectionsBySession: {},
     }
     const catalog = [{ id: 'child1', mode: 'one-shot', label: 'x' }, { id: 'ext', mode: 'external', label: 'y' }]
     const html = render({
       type: Badge,
       props: {
-        useProjection: key => (key === 'dshTokenCost' ? SESSION_VIEW : key === 'subagentCatalog' ? catalog : undefined),
+        useProjection: key => (key === 'dshTokenBill' ? SESSION_VIEW : key === 'subagentCatalog' ? catalog : undefined),
         useSessions: selector => selector(list),
         t: t('zh'),
       },
@@ -188,8 +188,8 @@ describe('client.js', () => {
     const child = viewFrom([message(0, 0, 'deepseek-flash', 'deepseek-account', { inputTokens: 1_000_000, outputTokens: 0 })])
     const list = {
       byId: {
-        root: { id: 'root', projectionValues: { dshTokenCost: SESSION_VIEW } },
-        child1: { id: 'child1', projectionValues: { dshTokenCost: child, subagentCatalog: [{ id: 'root', mode: 'one-shot' }] } },
+        root: { id: 'root', projectionValues: { dshTokenBill: SESSION_VIEW } },
+        child1: { id: 'child1', projectionValues: { dshTokenBill: child, subagentCatalog: [{ id: 'root', mode: 'one-shot' }] } },
       },
       projectionsBySession: {},
     }
@@ -197,7 +197,7 @@ describe('client.js', () => {
       type: Badge,
       props: {
         sessionId: 'root',
-        useProjection: key => (key === 'dshTokenCost' ? SESSION_VIEW : key === 'subagentCatalog' ? [{ id: 'child1', mode: 'one-shot' }] : undefined),
+        useProjection: key => (key === 'dshTokenBill' ? SESSION_VIEW : key === 'subagentCatalog' ? [{ id: 'child1', mode: 'one-shot' }] : undefined),
         useSessions: selector => selector(list),
         t: t('zh'),
       },
@@ -211,11 +211,11 @@ describe('client.js', () => {
     const Row = registrations[1].component
     const list = {
       byId: {
-        a: { id: 'a', projectionValues: { dshTokenCost: SESSION_VIEW } },
+        a: { id: 'a', projectionValues: { dshTokenBill: SESSION_VIEW } },
         b: { id: 'b', projectionValues: {} },
-        c: { id: 'c', projectionValues: { dshTokenCost: { ...SESSION_VIEW, showInList: false } } },
+        c: { id: 'c', projectionValues: { dshTokenBill: { ...SESSION_VIEW, showInList: false } } },
       },
-      projectionsBySession: { d: { values: { dshTokenCost: { ...SESSION_VIEW, cost: 0.0004, complete: true } } } },
+      projectionsBySession: { d: { values: { dshTokenBill: { ...SESSION_VIEW, cost: 0.0004, complete: true } } } },
     }
     const row = id => render({ type: Row, props: { sessionId: id, useSessions: selector => selector(list), t: t('zh') } })
     assert.equal(row('a'), '<span title="估算费用 ¥1.98+">¥1.98+</span>')

@@ -1,5 +1,5 @@
 /**
- * Host half of dsh-token-cost: registers the `dshTokenCost` session projection.
+ * Host half of dsh-token-bill: registers the `dshTokenBill` session projection.
  *
  * The bundle has no runtime dependencies on purpose — config is read from the
  * Loader row as-is (no Config schema) — so it installs straight from a Git
@@ -9,7 +9,7 @@
 import { createTokenCostProjection } from './lib/fold.js'
 import { resolvePricing } from './lib/pricing.js'
 
-export const name = 'dsh-token-cost'
+export const name = 'dsh-token-bill'
 
 export const inject = ['sessionProjections']
 

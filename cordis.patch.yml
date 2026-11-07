@@ -5,8 +5,8 @@
 # peak and off-peak separately; add any other model under `models`.
 # Override fields from your profile's cordis.patch.yml — see README.md.
 - insert:
-    - id: dsh-token-cost
-      name: dsh-token-cost
+    - id: dsh-token-bill
+      name: dsh-token-bill
       config:
         # CNY or USD use the built-in DeepSeek tables; any other code needs `models`.
         currency: CNY

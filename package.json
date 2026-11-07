@@ -1,16 +1,16 @@
 {
-  "name": "dsh-token-cost",
-  "version": "2.0.0",
+  "name": "dsh-token-bill",
+  "version": "2.0.1",
   "description": "DeepSeek Harness plugin: estimated cost of every conversation, with per-model and peak/off-peak DeepSeek pricing, a breakdown panel, and costs in the sidebar.",
   "license": "MIT",
   "author": "leecisen",
-  "homepage": "https://github.com/leecisen/dsh-token-cost#readme",
+  "homepage": "https://github.com/leecisen/dsh-token-bill#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/leecisen/dsh-token-cost.git"
+    "url": "git+https://github.com/leecisen/dsh-token-bill.git"
   },
   "bugs": {
-    "url": "https://github.com/leecisen/dsh-token-cost/issues"
+    "url": "https://github.com/leecisen/dsh-token-bill/issues"
   },
   "type": "module",
   "icon": "./icon.svg",
