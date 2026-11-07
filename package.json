@@ -1,0 +1,71 @@
+{
+  "name": "dsh-token-cost",
+  "version": "2.0.0",
+  "description": "DeepSeek Harness plugin: estimated cost of every conversation, with per-model and peak/off-peak DeepSeek pricing, a breakdown panel, and costs in the sidebar.",
+  "license": "MIT",
+  "author": "leecisen",
+  "homepage": "https://github.com/leecisen/dsh-token-cost#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leecisen/dsh-token-cost.git"
+  },
+  "bugs": {
+    "url": "https://github.com/leecisen/dsh-token-cost/issues"
+  },
+  "type": "module",
+  "icon": "./icon.svg",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek",
+    "deepseek-harness",
+    "token",
+    "cost",
+    "pricing",
+    "费用"
+  ],
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib/*.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "docs/*.png",
+    "README.md",
+    "README.en.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  },
+  "engines": {
+    "node": ">=22",
+    "dsh": ">=0.2.2-rc.1"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ]
+    }
+  }
+}

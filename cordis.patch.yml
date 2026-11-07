@@ -1,0 +1,16 @@
+# Inserts this bundle's row into the active DSH profile.
+#
+# Prices are per one million tokens, in `currency`. The official DeepSeek
+# models (deepseek-flash, deepseek-v4-pro) are priced from the built-in table,
+# peak and off-peak separately; add any other model under `models`.
+# Override fields from your profile's cordis.patch.yml — see README.md.
+- insert:
+    - id: dsh-token-cost
+      name: dsh-token-cost
+      config:
+        # CNY or USD use the built-in DeepSeek tables; any other code needs `models`.
+        currency: CNY
+        # DeepSeek peak / off-peak pricing (off-peak is half price).
+        timeOfDayPricing: true
+        # Show each conversation's cost in the sidebar list.
+        showInSessionList: true
