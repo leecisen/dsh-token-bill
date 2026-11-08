@@ -52,6 +52,8 @@ describe('foldEvent', () => {
     assert.deepEqual(entry(state, 'deepseek-v4-pro'), {
       provider: 'deepseek-account',
       model: 'deepseek-v4-pro',
+      date: '2026-11-09',
+      band: 0,
       peak: { input: 1000, cacheRead: 3000, cacheWrite: 0, output: 200, reasoning: 150 },
       offPeak: { input: 0, cacheRead: 0, cacheWrite: 0, output: 0, reasoning: 0 },
     })
@@ -126,8 +128,36 @@ describe('foldEvent', () => {
     assert.equal(entry(state, 'deepseek-v4-pro').peak.input, 1_000_000)
     assert.equal(entry(state, 'deepseek-v4-pro').offPeak.input, 1_000_000)
     const view = projection.wire.view(state)
-    assert.equal(view.cost, 9 + 4.5)
-    assert.equal(view.saved, 4.5)
+    assert.equal(view.cost['CNY+USD'].CNY, 9 + 4.5)
+    assert.equal(view.saved['CNY+USD'].CNY, 4.5)
+  })
+
+  it('keeps each Beijing date and prompt band of a route apart', () => {
+    const NEXT_DAY = Date.parse('2026-11-10T10:00:00+08:00')
+    const state = run([
+      turnStart(0),
+      message(0, 0, usage(10_000, 1), source('openai', 'gpt-5.5'), PEAK),
+      message(0, 1, usage(300_000, 1), source('openai', 'gpt-5.5'), PEAK),
+      message(0, 2, usage(10_000, 1), source('openai', 'gpt-5.5'), NEXT_DAY),
+    ])
+    assert.deepEqual(state.total.map(e => [e.date, e.band, e.peak.input]), [
+      ['2026-11-09', 0, 10_000],
+      ['2026-11-09', 6, 300_000],
+      ['2026-11-10', 0, 10_000],
+    ])
+  })
+
+  it('moves a replaced sample to the band of its final prompt size', () => {
+    const state = run([
+      header('openai', 'gpt-5.5'),
+      turnStart(0),
+      attempt(0, 0, usage(10_000, 1)),
+      message(0, 0, usage(10_000, 10, 290_000), source('openai', 'gpt-5.5')),
+    ])
+    assert.equal(state.total.length, 1)
+    assert.equal(state.total[0].band, 6)
+    assert.equal(state.total[0].peak.cacheRead, 290_000)
+    assert.equal(state.calls, 1)
   })
 
   it('moves a replaced sample between tiers when its time crosses the boundary', () => {
@@ -190,7 +220,8 @@ describe('parseState', () => {
   })
 
   it('rejects values of another shape', () => {
-    for (const bad of [null, 1, {}, { ...initialState(), total: [{}] }, { ...initialState(), calls: -1 }, { totals: {}, last: null }]) {
+    const v2Entry = { provider: 'a', model: 'b', peak: { input: 1, cacheRead: 0, cacheWrite: 0, output: 0, reasoning: 0 }, offPeak: { input: 0, cacheRead: 0, cacheWrite: 0, output: 0, reasoning: 0 } }
+    for (const bad of [null, 1, {}, { ...initialState(), total: [{}] }, { ...initialState(), total: [v2Entry] }, { ...initialState(), calls: -1 }, { totals: {}, last: null }]) {
       assert.throws(() => parseState(bad), /invalid projection state/)
     }
   })
@@ -204,7 +235,7 @@ describe('createTokenCostProjection', () => {
     const state = [turnStart(0), message(0, 0, usage(1_000_000, 1_000_000))].reduce(projection.apply, projection.init({}, 0))
     const view = projection.wire.viewSchema.parse(projection.wire.view(state))
     assert.equal(view.currency, 'USD')
-    assert.equal(view.cost, 5.28) // 1.32 + 3.96
+    assert.equal(view.cost['CNY+USD'].USD, 5.28) // 1.32 + 3.96
     assert.throws(() => projection.wire.viewSchema.parse(Promise.resolve({})), /plain object/)
   })
 })

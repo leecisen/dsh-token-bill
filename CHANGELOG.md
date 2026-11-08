@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.1.0 — 2026-11-08
+
+### Added
+
+- **Currency picker** in the breakdown panel's header. Every amount, the badge and the sidebar included, switches to the picked currency, and the choice is remembered. The default list follows DeepSeek's largest user regions: CNY, USD, EUR, RUB, INR, IDR, BRL, HKD (`currencies` changes it).
+- **Daily exchange rates**: amounts that need converting use the day's rate from currency-api (with jsDelivr and ExchangeRate-API as backups), fetched at most every 12 hours and cached in the browser; built-in rates of 2026-11-07 cover offline use. `exchangeRates: false` keeps the plugin offline. Hover the currency to see the rates' date and source.
+- **Official prices for 16 vendors, over 100 models** (checked 2026-11-08): DeepSeek; Anthropic Claude, OpenAI, Google Gemini, xAI Grok; Moonshot Kimi, Zhipu GLM, MiniMax, Alibaba Qwen, ByteDance Doubao, Tencent Hunyuan, Baidu ERNIE, Xiaomi MiMo, StepFun, Ant Group Ling, Meituan LongCat. Models with both a mainland-China CNY price and an international USD price use the table matching the displayed currency.
+- **Long-context tiers**: each call is priced by its own prompt size (Claude Haiku 5.5 above 100k, Gemini and Grok above 200k, OpenAI above 272k, Qwen, Doubao, GLM-5.1, ERNIE, MiniMax).
+- **Dated price changes**: a price with a start date applies from that Beijing day, so Gemini 4 Argon's and Gemini 3.8 Flash's promotional prices end on schedule, and Step 5 Preview's cache price rises on 2026-10-14, without re-pricing earlier calls.
+- Model ids are matched across spellings: OpenRouter `vendor/model`, Bedrock and Vertex ids, dated snapshots, dots or dashes in version numbers; OpenRouter `:free` models cost nothing.
+- 2027 Chinese public holidays (announced 2026-11-05).
+- `models` entries take an optional `currency`; `cacheRead` is the new name for `cacheHit` (both work).
+
+### Changed
+
+- The panel's footnote is gone; the panel title already says the amounts are estimates.
+- Holidays are applied when the view is built, so holidays added in the config re-price past sessions too.
+- The projection state records each call's Beijing date and prompt-size band (state version 3): after updating, each session's history is counted again once.
+- Views carry amounts per official currency (view version 3). The browser half still reads views a window received from 2.0 before the update, with the currency picker, until the window reloads.
+
 ## 2.0.2 — 2026-11-08
 
 Documentation only; the plugin code is unchanged.

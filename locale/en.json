@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Conversation cost",
-    "description": "Estimated cost of every conversation: a badge with a breakdown under the composer and a cost beside each conversation in the sidebar, priced per model and by DeepSeek peak / off-peak hours.",
+    "description": "Estimated cost of every conversation: a badge with a breakdown under the composer and a cost beside each conversation in the sidebar. Official prices from DeepSeek, Claude, GPT, Gemini, Grok, and 11 Chinese vendors, shown in the currency you pick at the day's exchange rate; DeepSeek priced by peak / off-peak hours.",
     "detail": "README.en.md"
   }
 }

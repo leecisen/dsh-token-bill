@@ -1,8 +1,8 @@
 /**
  * Smoke test of the browser half without a browser: client.js runs against a
  * tiny React stand-in that renders function components to text, so the slot
- * registrations, the badge, the panel, and the sidebar label can be checked
- * under plain `node --test`.
+ * registrations, the badge, the panel, the currency picker, and the sidebar
+ * label can be checked under plain `node --test`.
  */
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -32,7 +32,16 @@ function fakeReact(stateQueue) {
     useRef: current => ({ current }),
     useEffect: () => {},
     useLayoutEffect: () => {},
+    useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot(),
   }
+}
+
+/** Expand function components, so element trees can be searched and rendered. */
+function expand(node) {
+  if (node === null || typeof node !== 'object') return node
+  if (Array.isArray(node)) return node.map(expand)
+  if (typeof node.type === 'function') return expand(node.type(node.props))
+  return { ...node, props: { ...node.props, children: expand(node.props.children) } }
 }
 
 /** Render to compact text: element tags become `<tag>`, attributes are dropped except title/aria-label. */
@@ -47,7 +56,21 @@ function render(node) {
   return `<${node.type}${attrs}>${render(node.props.children)}</${node.type}>`
 }
 
-function loadClient({ open = false } = {}) {
+/** First element (after expansion) the predicate accepts. */
+function find(node, predicate) {
+  if (node === null || typeof node !== 'object') return undefined
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const hit = find(child, predicate)
+      if (hit !== undefined) return hit
+    }
+    return undefined
+  }
+  if (predicate(node)) return node
+  return find(node.props.children, predicate)
+}
+
+function loadClient({ open = false, stored = {} } = {}) {
   const stateQueue = open ? [true] : []
   const React = fakeReact(stateQueue)
   const modules = { react: React, 'react-dom': { createPortal: node => node } }
@@ -59,9 +82,16 @@ function loadClient({ open = false } = {}) {
     querySelector: () => null,
     createElement: () => ({ dataset: {}, remove() {} }),
   }
+  const storage = { ...stored }
   const sandbox = {
     document,
-    window: { __ModuleLoader__: { load: ({ id, factory }) => { plugin = { id, ...factory(name => modules[name]) } } } },
+    window: {
+      __ModuleLoader__: { load: ({ id, factory }) => { plugin = { id, ...factory(name => modules[name]) } } },
+      localStorage: {
+        getItem: key => (key in storage ? storage[key] : null),
+        setItem: (key, value) => { storage[key] = String(value) },
+      },
+    },
   }
   vm.runInNewContext(readFileSync(new URL('../client.js', import.meta.url), 'utf8'), sandbox, { filename: 'client.js' })
 
@@ -81,7 +111,7 @@ function loadClient({ open = false } = {}) {
     const template = dictionaries.dshTokenBill[lang][key] ?? key
     return params ? template.replace(/\{(\w+)\}/g, (m, n) => (n in params ? String(params[n]) : m)) : template
   }
-  return { plugin, registrations, dictionaries, effects, t, stateQueue }
+  return { plugin, registrations, dictionaries, effects, t, stateQueue, storage }
 }
 
 /** A real view from the Host fold, so the client renders exactly what the Host would send. */
@@ -106,11 +136,16 @@ const SESSION_VIEW = viewFrom([
   message(0, 0, 'deepseek-v4-pro', 'deepseek-account', { inputTokens: 120_000, cacheReadTokens: 880_000, outputTokens: 9_000, reasoningTokens: 3_000 }),
   { type: 'turn/start', seq: seq++, time: MONDAY_NIGHT, data: { turn: 1 } },
   message(1, 0, 'deepseek-v4-pro', 'deepseek-account', { inputTokens: 40_000, cacheReadTokens: 960_000, outputTokens: 5_000 }, MONDAY_NIGHT),
-  message(1, 1, 'hy4', 'hy4', { inputTokens: 2_000, outputTokens: 300 }, MONDAY_NIGHT),
+  message(1, 1, 'hy5', 'hy5', { inputTokens: 2_000, outputTokens: 300 }, MONDAY_NIGHT),
 ])
 
+/** One Claude Opus 5.5 call: $4 of input, priced in USD only. */
+const CLAUDE_VIEW = viewFrom([message(0, 0, 'claude-opus-5-5', 'anthropic', { inputTokens: 1_000_000, outputTokens: 0 })])
+
+const props = (view, t, extra = {}) => ({ useProjection: key => (key === 'dshTokenBill' ? view : undefined), t, ...extra })
+
 describe('client.js', () => {
-  it('registers as dsh-token-bill with both slot entries, styles, and dictionaries', () => {
+  it('registers as dsh-token-bill with both slot entries, styles, dictionaries, and the settings sync', () => {
     const { plugin, registrations, dictionaries, effects } = loadClient()
     assert.equal(plugin.id, 'dsh-token-bill')
     assert.deepEqual([...plugin.inject], ['slots', 'locale'])
@@ -120,15 +155,15 @@ describe('client.js', () => {
     ])
     assert.deepEqual(Object.keys(dictionaries.dshTokenBill).sort(), ['en', 'zh'])
     assert.deepEqual(Object.keys(dictionaries.dshTokenBill.zh).sort(), Object.keys(dictionaries.dshTokenBill.en).sort())
-    assert.equal(effects.length, 2)
+    assert.equal(effects.length, 3)
   })
 
   it('renders the badge with the session cost and nothing before the first call', () => {
     const { registrations, t } = loadClient()
     const Badge = registrations[0].component
-    const html = render({ type: Badge, props: { useProjection: key => (key === 'dshTokenBill' ? SESSION_VIEW : undefined), t: t('zh') } })
+    const html = render({ type: Badge, props: props(SESSION_VIEW, t('zh')) })
     // Peak: 0.12M*9 + 0.88M*0.3 + 9k*27 = 1.08 + 0.264 + 0.243; night: 0.04M*4.5 + 0.96M*0.15 + 5k*13.5 = 0.18 + 0.144 + 0.0675
-    assert.equal(SESSION_VIEW.cost, 1.9785)
+    assert.equal(SESSION_VIEW.cost['CNY+USD'].CNY, 1.9785)
     // Without ui-primitives the Tooltip stand-in puts the label in `title`.
     assert.match(html, /<button title="本会话估算费用 ¥1\.98\+，点击查看明细" aria-label="本会话估算费用 ¥1\.98\+，点击查看明细">¥1\.98\+<\/button>/)
     const empty = viewFrom([])
@@ -136,13 +171,15 @@ describe('client.js', () => {
     assert.equal(render({ type: Badge, props: { useProjection: () => undefined } }), '')
   })
 
-  it('renders the open panel with buckets, stats, models, and notes', () => {
+  it('renders the open panel with buckets, stats, models, and the currency picker, without a footnote', () => {
     const { registrations, t } = loadClient({ open: true })
     const Badge = registrations[0].component
-    const html = render({ type: Badge, props: { useProjection: key => (key === 'dshTokenBill' ? SESSION_VIEW : undefined), t: t('en') } })
+    const html = render({ type: Badge, props: props(SESSION_VIEW, t('en')) })
     for (const text of [
       'Session cost (estimate)',
       '¥1.98+',
+      'aria-label="Display currency"',
+      '<option>CNY · Chinese Yuan</option>', '<option>USD · US Dollar</option>', '<option>RUB · Russian Ruble</option>',
       'Input · cache miss', '162k',
       'Input · cache hit', '1.8M',
       'Output', '14.3k', // 9k + 5k + 300
@@ -151,12 +188,53 @@ describe('client.js', () => {
       'Thinking (in output)', '3k tokens',
       'Last turn', '¥0.392+',
       'Off-peak savings', '¥0.392',
-      'By model', 'deepseek-v4-pro', 'hy4', 'no price',
-      'Models without a price are left out',
+      'By model', 'deepseek-v4-pro', 'hy5', 'no price',
     ]) {
       assert.ok(html.includes(text), `panel should include ${JSON.stringify(text)}\n${html}`)
     }
     assert.equal(html.includes('Cache write'), false, 'the cache-write row hides when unused')
+    assert.equal(html.includes('<p'), false, 'the footnote is gone')
+    assert.equal(html.includes('half price'), false, 'the footnote is gone')
+    assert.match(html, /title="Built-in rates of 2026-11-07 \(not refreshed online yet\) · 1 USD = 6\.6755 CNY"/)
+  })
+
+  it('switches every amount to the picked currency and remembers it', () => {
+    const { registrations, t, storage } = loadClient({ open: true })
+    const Badge = registrations[0].component
+    const select = find(expand({ type: Badge, props: props(SESSION_VIEW, t('zh')) }), node => node.type === 'select')
+    assert.equal(select.props.value, 'CNY')
+    select.props.onChange({ target: { value: 'USD' } })
+    assert.equal(storage['dsh-token-bill:currency'], 'USD')
+    // DeepSeek has an official USD table: 0.12M*1.32 + 0.88M*0.044 + 9k*3.96 + 0.04M*0.66 + 0.96M*0.022 + 5k*1.98
+    assert.equal(SESSION_VIEW.cost['CNY+USD'].USD, 0.29018)
+    const badge = render({ type: Badge, props: props(SESSION_VIEW, t('zh')) })
+    assert.ok(badge.includes('>$0.290+</button>'), badge)
+    // Ignored: not a currency code.
+    select.props.onChange({ target: { value: 'dollars' } })
+    assert.equal(storage['dsh-token-bill:currency'], 'USD')
+  })
+
+  it('converts the other currency at the day\'s rate, grouping large amounts', () => {
+    const shown = (code) => {
+      const { registrations, t } = loadClient({ stored: { 'dsh-token-bill:currency': code } })
+      return render({ type: registrations[0].component, props: props(CLAUDE_VIEW, t('zh')) })
+    }
+    assert.ok(shown('USD').includes('>$4.00</button>'))
+    assert.ok(shown('CNY').includes('>¥26.70</button>')) // 4 * 6.67549
+    assert.ok(shown('IDR').includes('>Rp 72,420</button>')) // 4 * 18105.1
+    // A pick the config does not offer falls back to the configured currency.
+    assert.ok(shown('XYZ').includes('>¥26.70</button>'))
+  })
+
+  it('prefers newer stored rates over the built-in table', () => {
+    const stored = {
+      'dsh-token-bill:currency': 'CNY',
+      'dsh-token-bill:rates': JSON.stringify({ date: '2026-11-08', source: 'currency-api', fetchedAt: Date.now(), rates: { USD: 1, CNY: 7 } }),
+    }
+    const { registrations, t } = loadClient({ stored, open: true })
+    const html = render({ type: registrations[0].component, props: props(CLAUDE_VIEW, t('zh')) })
+    assert.ok(html.includes('>¥28.00</button>'), html)
+    assert.ok(html.includes('汇率 2026-11-08（currency-api，每日更新） · 1 USD = 7 CNY'), html)
   })
 
   it('adds subagent costs from the session list', () => {
@@ -215,7 +293,7 @@ describe('client.js', () => {
         b: { id: 'b', projectionValues: {} },
         c: { id: 'c', projectionValues: { dshTokenBill: { ...SESSION_VIEW, showInList: false } } },
       },
-      projectionsBySession: { d: { values: { dshTokenBill: { ...SESSION_VIEW, cost: 0.0004, complete: true } } } },
+      projectionsBySession: { d: { values: { dshTokenBill: { ...SESSION_VIEW, cost: { CNY: { CNY: 0.0004 } }, complete: true } } } },
     }
     const row = id => render({ type: Row, props: { sessionId: id, useSessions: selector => selector(list), t: t('zh') } })
     assert.equal(row('a'), '<span title="估算费用 ¥1.98+">¥1.98+</span>')
@@ -223,5 +301,21 @@ describe('client.js', () => {
     assert.equal(row('c'), '')
     assert.equal(row('d'), '<span title="估算费用 ¥0.0004"><¥0.001</span>')
     assert.equal(row('missing'), '')
+  })
+
+  it('still reads v2 views a window held across the upgrade, picker and conversion included', () => {
+    const legacy = {
+      v: 2, currency: 'CNY', symbol: '¥', cost: 6.67549, complete: true, calls: 1,
+      tokens: { input: 1, cacheRead: 0, cacheWrite: 0, output: 0, reasoning: 0 },
+      costs: { input: 6.67549, cacheRead: 0, cacheWrite: 0, output: 0 },
+      cacheHitRate: 0, tiered: true, saved: 0, turn: null, compaction: null, models: [], showInList: true,
+    }
+    const { registrations, t } = loadClient({ stored: { 'dsh-token-bill:currency': 'USD' }, open: true })
+    const panel = render({ type: registrations[0].component, props: props(legacy, t('zh')) })
+    assert.ok(panel.includes('>$1.00</button>'), panel)
+    assert.ok(panel.includes('aria-label="显示币种"'), 'the picker shows for a v2 view too')
+    const list = { byId: { a: { id: 'a', projectionValues: { dshTokenBill: legacy } } }, projectionsBySession: {} }
+    assert.equal(render({ type: registrations[1].component, props: { sessionId: 'a', useSessions: selector => selector(list), t: t('zh') } }),
+      '<span title="估算费用 $1.00">$1.00</span>')
   })
 })

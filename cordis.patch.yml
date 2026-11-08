@@ -1,15 +1,19 @@
 # Inserts this bundle's row into the active DSH profile.
 #
-# Prices are per one million tokens, in `currency`. The official DeepSeek
-# models (deepseek-flash, deepseek-v4-pro) are priced from the built-in table,
-# peak and off-peak separately; add any other model under `models`.
-# Override fields from your profile's cordis.patch.yml — see README.md.
+# Official prices for DeepSeek, Claude, GPT, Gemini, Grok, and the main
+# Chinese vendors are built in (see README.md); add any other model under
+# `models`, priced per one million tokens. Override fields from your
+# profile's cordis.patch.yml — the row you write there replaces this config.
 - insert:
     - id: dsh-token-bill
       name: dsh-token-bill
       config:
-        # CNY or USD use the built-in DeepSeek tables; any other code needs `models`.
+        # Default display currency, and the currency of custom `models` prices.
         currency: CNY
+        # Currencies the panel's picker offers.
+        currencies: [CNY, USD, EUR, RUB, INR, IDR, BRL, HKD]
+        # Fetch the day's exchange rates when an amount needs converting.
+        exchangeRates: true
         # DeepSeek peak / off-peak pricing (off-peak is half price).
         timeOfDayPricing: true
         # Show each conversation's cost in the sidebar list.

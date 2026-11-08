@@ -1,7 +1,7 @@
 {
   "name": "dsh-token-bill",
-  "version": "2.0.2",
-  "description": "DeepSeek Harness plugin: estimated cost of every conversation, with per-model and peak/off-peak DeepSeek pricing, a breakdown panel, and costs in the sidebar.",
+  "version": "2.1.0",
+  "description": "DeepSeek Harness plugin: estimated cost of every conversation, with official prices from DeepSeek, Claude, GPT, Gemini, Grok, and 11 Chinese vendors, a currency switcher with daily exchange rates, peak/off-peak DeepSeek pricing, a breakdown panel, and costs in the sidebar.",
   "license": "MIT",
   "author": "leecisen",
   "homepage": "https://github.com/leecisen/dsh-token-bill#readme",
@@ -25,7 +25,16 @@
     "billing",
     "usage",
     "cost-tracking",
-    "费用"
+    "multi-currency",
+    "exchange-rate",
+    "claude",
+    "openai",
+    "gemini",
+    "kimi",
+    "qwen",
+    "glm",
+    "费用",
+    "汇率"
   ],
   "main": "./index.js",
   "exports": {

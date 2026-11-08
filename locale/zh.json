@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "对话费用",
-    "description": "估算每个对话的费用：输入框下方显示本会话费用并可展开明细，侧边栏显示每个对话的费用；按模型、按 DeepSeek 高峰/空闲时段分别计价。",
+    "description": "估算每个对话的费用：输入框下方显示本会话费用并可展开明细，侧边栏显示每个对话的费用。内置 DeepSeek、Claude、GPT、Gemini、Grok 及国内 11 家厂商的官方价格，可切换币种并按当日汇率换算；DeepSeek 按高峰/空闲时段分别计价。",
     "detail": "README.md"
   }
 }
